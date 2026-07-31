@@ -10,6 +10,7 @@ The lab environment simulates a company ("FernandoTech") with 6 departments (mod
 
 Architecture
 Source of truth: HR_Roster.csv — simulates an HR system export with Name, Club, Status, ManagerName, JobTitle columns
+
 <img width="450" height="239" alt="image" src="https://github.com/user-attachments/assets/c2281f1b-a8b7-47cc-a1bc-4a1c1059ebbf" />
 
 Reconciliation engine: A single PowerShell script reads the CSV and branches into Joiner / Mover / Leaver logic based on the Status field per record
