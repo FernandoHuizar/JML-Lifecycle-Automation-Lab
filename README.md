@@ -77,6 +77,7 @@ Set-MgUserManagerByRef -UserId $user.Id -BodyParameter @{ "@odata.id" = "https:/
 ```
 
 <img width="714" height="92" alt="Mover proof - Harry Kane department change" src="https://github.com/user-attachments/assets/10803112-0220-4587-9380-3df91f2d3d2b" />
+<img width="864" height="99" alt="image" src="https://github.com/user-attachments/assets/f6e371f5-a4ec-4f4e-880f-74dbe9f9015f" />
 
 ## Section 3: Leaver
 
@@ -104,6 +105,7 @@ New-MgGroupMember -GroupId $disabledGroup.Id -DirectoryObjectId $user.Id
 ## Access Governance
 
 <img width="839" height="171" alt="Audit log sample" src="https://github.com/user-attachments/assets/39d1cc58-0b31-4b51-9d5e-bd8617c4ef7a" />
+<img width="868" height="104" alt="image" src="https://github.com/user-attachments/assets/ebdfdbf6-b4fd-4551-a7b4-18aaa3bba1e9" />
 
 All identities in this lab operate under existing tenant-wide Conditional Access policies:
 
