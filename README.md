@@ -1,2 +1,93 @@
-# JML-Lifecycle-Automation-Lab
-PowerShell-driven HR reconciliation pipeline automating Joiner-Mover-Leaver identity lifecycle across 50+ simulated identities in Microsoft Entra ID
+ML (Joiner-Mover-Leaver) Lifecycle Automation Lab
+
+Tools: PowerShell, Microsoft Entra ID, Microsoft Graph API
+
+Overview
+
+This lab simulates an enterprise identity lifecycle automation pipeline driven by an HR system of truth. Rather than manually provisioning, transferring, or offboarding accounts one at a time, a single PowerShell reconciliation script reads an HR export (CSV) and automatically applies the correct identity action based on each record's status — mirroring how real-world IGA platforms (SailPoint, Okta Workflows, etc.) operate under the hood.
+
+The lab environment simulates a company ("FernandoTech") with 6 departments (modeled as soccer clubs for readability) and processes a 62-record HR batch covering the full identity lifecycle.
+
+Architecture
+Source of truth: HR_Roster.csv — simulates an HR system export with Name, Club, Status, ManagerName, JobTitle columns
+Reconciliation engine: A single PowerShell script reads the CSV and branches into Joiner / Mover / Leaver logic based on the Status field per record
+Identity platform: Microsoft Entra ID (Microsoft Graph PowerShell SDK)
+Access control: Department-based security groups (RBAC), enforced via Conditional Access policies already active on the tenant (MFA, device compliance, legacy auth blocking)
+Audit trail: Every lifecycle event is logged with a timestamp to JML_AuditLog.csv
+Results
+Event Type	Count
+Joiner	50
+Mover	8
+Leaver	4
+Total records processed	62
+Section 1: Joiner
+
+50 new identities provisioned in a single automated pass. For each record:
+
+Account created in Entra ID with department and job title attributes set
+Manager attribute linked to the correct department manager (a real user object, not just a text field)
+Added to both the department-specific security group and a company-wide baseline group
+Event logged with timestamp
+
+Sample script logic:
+
+powershell
+$newUser = New-MgUser -DisplayName $record.Name -MailNickname $mailNickname -UserPrincipalName $upn `
+    -AccountEnabled -JobTitle $record.JobTitle -Department $record.Club -PasswordProfile $pw
+
+$manager = Get-MgUser -Filter "displayName eq '$($record.ManagerName)'"
+Set-MgUserManagerByRef -UserId $newUser.Id -BodyParameter @{ "@odata.id" = "https://graph.microsoft.com/v1.0/users/$($manager.Id)" }
+
+New-MgGroupMember -GroupId $clubGroup.Id -DirectoryObjectId $newUser.Id
+New-MgGroupMember -GroupId $allPlayers.Id -DirectoryObjectId $newUser.Id
+Section 2: Mover
+
+8 identities transferred between departments, simulating promotions/role changes. For each transfer:
+
+Removed from old department's security group
+Added to new department's security group
+Department attribute updated
+Manager attribute reassigned to reflect new reporting line
+Full before/after state logged for audit purposes
+
+Sample script logic:
+
+powershell
+Remove-MgGroupMemberByRef -GroupId $oldGroup.Id -DirectoryObjectId $user.Id
+New-MgGroupMember -GroupId $newGroup.Id -DirectoryObjectId $user.Id
+Update-MgUser -UserId $user.Id -Department $record.Club
+Set-MgUserManagerByRef -UserId $user.Id -BodyParameter @{ "@odata.id" = "https://graph.microsoft.com/v1.0/users/$($newManager.Id)" }
+Section 3: Leaver
+
+4 identities offboarded using a 6-step deprovisioning sequence:
+
+Disable account
+Randomize password
+Remove all group memberships
+Stamp audit timestamp
+Hide from Global Address List
+Move to Disabled Users group (cloud equivalent of moving to a Disabled OU)
+
+Sample script logic:
+
+powershell
+Update-MgUser -UserId $user.Id -AccountEnabled:$false
+Update-MgUser -UserId $user.Id -PasswordProfile @{ Password = $randomPw; ForceChangePasswordNextSignIn = $true }
+foreach ($g in $memberships) { Remove-MgGroupMemberByRef -GroupId $g.Id -DirectoryObjectId $user.Id }
+Update-MgUser -UserId $user.Id -ShowInAddressList:$false
+New-MgGroupMember -GroupId $disabledGroup.Id -DirectoryObjectId $user.Id
+Access Governance
+
+All identities in this lab operate under existing tenant-wide Conditional Access policies:
+
+CORP-Require-MFA-All-Users — MFA enforced for all sign-ins
+CORP-Require-Compliant-Device — device compliance required for access
+CORP-Block-Legacy-Authentication — legacy auth protocols blocked
+
+This demonstrates that provisioned identities inherit real security posture immediately upon creation, not as a separate manual step.
+
+Key Takeaways
+Built a reconciliation pattern (HR source of truth → automated identity actions) rather than three disconnected manual scripts
+Demonstrated full JML lifecycle: provisioning, mid-lifecycle attribute/group changes, and secure offboarding
+Full audit trail across all 62 events for compliance/audit-readiness
+Access governed by existing Conditional Access policies (MFA, device compliance, legacy auth blocking)
