@@ -85,9 +85,11 @@ Update-MgUser -UserId $user.Id -PasswordProfile @{ Password = $randomPw; ForceCh
 foreach ($g in $memberships) { Remove-MgGroupMemberByRef -GroupId $g.Id -DirectoryObjectId $user.Id }
 Update-MgUser -UserId $user.Id -ShowInAddressList:$false
 New-MgGroupMember -GroupId $disabledGroup.Id -DirectoryObjectId $user.Id
+
 <img width="784" height="90" alt="image" src="https://github.com/user-attachments/assets/82f652ca-cfe4-48a6-a8bd-7576e92c6d0b" />
 
 Access Governance
+
 <img width="839" height="171" alt="image" src="https://github.com/user-attachments/assets/39d1cc58-0b31-4b51-9d5e-bd8617c4ef7a" />
 
 All identities in this lab operate under existing tenant-wide Conditional Access policies:
