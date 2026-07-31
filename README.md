@@ -13,6 +13,7 @@ Source of truth: HR_Roster.csv — simulates an HR system export with Name, Club
 <img width="450" height="239" alt="image" src="https://github.com/user-attachments/assets/c2281f1b-a8b7-47cc-a1bc-4a1c1059ebbf" />
 
 Reconciliation engine: A single PowerShell script reads the CSV and branches into Joiner / Mover / Leaver logic based on the Status field per record
+
 <img width="653" height="144" alt="image" src="https://github.com/user-attachments/assets/d4915b3a-2876-4458-8718-b3c85a389255" />
 
 Identity platform: Microsoft Entra ID (Microsoft Graph PowerShell SDK)
