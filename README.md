@@ -101,11 +101,11 @@ New-MgGroupMember -GroupId $disabledGroup.Id -DirectoryObjectId $user.Id
 ```
 
 <img width="784" height="90" alt="Leaver proof - Messi account disabled" src="https://github.com/user-attachments/assets/82f652ca-cfe4-48a6-a8bd-7576e92c6d0b" />
+<img width="868" height="104" alt="image" src="https://github.com/user-attachments/assets/ebdfdbf6-b4fd-4551-a7b4-18aaa3bba1e9" />
 
 ## Access Governance
 
 <img width="839" height="171" alt="Audit log sample" src="https://github.com/user-attachments/assets/39d1cc58-0b31-4b51-9d5e-bd8617c4ef7a" />
-<img width="868" height="104" alt="image" src="https://github.com/user-attachments/assets/ebdfdbf6-b4fd-4551-a7b4-18aaa3bba1e9" />
 
 All identities in this lab operate under existing tenant-wide Conditional Access policies:
 
