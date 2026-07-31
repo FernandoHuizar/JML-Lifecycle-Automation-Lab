@@ -10,7 +10,11 @@ The lab environment simulates a company ("FernandoTech") with 6 departments (mod
 
 Architecture
 Source of truth: HR_Roster.csv — simulates an HR system export with Name, Club, Status, ManagerName, JobTitle columns
+<img width="450" height="239" alt="image" src="https://github.com/user-attachments/assets/c2281f1b-a8b7-47cc-a1bc-4a1c1059ebbf" />
+
 Reconciliation engine: A single PowerShell script reads the CSV and branches into Joiner / Mover / Leaver logic based on the Status field per record
+<img width="653" height="144" alt="image" src="https://github.com/user-attachments/assets/d4915b3a-2876-4458-8718-b3c85a389255" />
+
 Identity platform: Microsoft Entra ID (Microsoft Graph PowerShell SDK)
 Access control: Department-based security groups (RBAC), enforced via Conditional Access policies already active on the tenant (MFA, device compliance, legacy auth blocking)
 Audit trail: Every lifecycle event is logged with a timestamp to JML_AuditLog.csv
@@ -40,8 +44,10 @@ Set-MgUserManagerByRef -UserId $newUser.Id -BodyParameter @{ "@odata.id" = "http
 
 New-MgGroupMember -GroupId $clubGroup.Id -DirectoryObjectId $newUser.Id
 New-MgGroupMember -GroupId $allPlayers.Id -DirectoryObjectId $newUser.Id
-Section 2: Mover
+<img width="1620" height="773" alt="image" src="https://github.com/user-attachments/assets/a4adf4e9-445f-4099-ab60-699e3f02fe4e" />
+<img width="1202" height="859" alt="image" src="https://github.com/user-attachments/assets/e16ec4b2-7620-4b9a-a7ed-27df23ebfe90" />
 
+Section 2: Mover
 8 identities transferred between departments, simulating promotions/role changes. For each transfer:
 
 Removed from old department's security group
@@ -57,6 +63,8 @@ Remove-MgGroupMemberByRef -GroupId $oldGroup.Id -DirectoryObjectId $user.Id
 New-MgGroupMember -GroupId $newGroup.Id -DirectoryObjectId $user.Id
 Update-MgUser -UserId $user.Id -Department $record.Club
 Set-MgUserManagerByRef -UserId $user.Id -BodyParameter @{ "@odata.id" = "https://graph.microsoft.com/v1.0/users/$($newManager.Id)" }
+<img width="714" height="92" alt="image" src="https://github.com/user-attachments/assets/10803112-0220-4587-9380-3df91f2d3d2b" />
+
 Section 3: Leaver
 
 4 identities offboarded using a 6-step deprovisioning sequence:
@@ -76,13 +84,17 @@ Update-MgUser -UserId $user.Id -PasswordProfile @{ Password = $randomPw; ForceCh
 foreach ($g in $memberships) { Remove-MgGroupMemberByRef -GroupId $g.Id -DirectoryObjectId $user.Id }
 Update-MgUser -UserId $user.Id -ShowInAddressList:$false
 New-MgGroupMember -GroupId $disabledGroup.Id -DirectoryObjectId $user.Id
+<img width="784" height="90" alt="image" src="https://github.com/user-attachments/assets/82f652ca-cfe4-48a6-a8bd-7576e92c6d0b" />
+
 Access Governance
+<img width="839" height="171" alt="image" src="https://github.com/user-attachments/assets/39d1cc58-0b31-4b51-9d5e-bd8617c4ef7a" />
 
 All identities in this lab operate under existing tenant-wide Conditional Access policies:
 
 CORP-Require-MFA-All-Users — MFA enforced for all sign-ins
 CORP-Require-Compliant-Device — device compliance required for access
 CORP-Block-Legacy-Authentication — legacy auth protocols blocked
+<img width="1103" height="619" alt="image" src="https://github.com/user-attachments/assets/b81671de-450f-4008-b3fa-6e5d382c25cd" />
 
 This demonstrates that provisioned identities inherit real security posture immediately upon creation, not as a separate manual step.
 
